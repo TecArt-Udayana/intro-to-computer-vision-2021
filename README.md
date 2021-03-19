@@ -5,7 +5,7 @@ A tool for selecting optimal range (Including dilation and erotion) for HSV
 You need either an Anaconda or regular PIP
 
 ## If you're using Anaconda
-Import the environment.yml file as an environment to your local development machine
+Create an environment and install packages by importing the environment.yml file by running `conda env create -f environment.yml` from your terminal
 
 ## If you're using PIP
 Run `pip install -r requirements.txt` from your terminal
