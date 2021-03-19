@@ -14,3 +14,5 @@ After configuring your environment, run `python3 main.py`
 Open a picture by clicking `Open` button
 
 ![App Screenshot](assets/app.png)
+# intro-to-computer-vision-2021
+Repository for Workshop 2 Smart Technology (ST) Division Tecart 2021 : Intro to Computer Vision 
