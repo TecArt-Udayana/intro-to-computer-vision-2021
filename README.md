@@ -11,6 +11,7 @@ You need either an Anaconda or regular PIP
 Create an environment and install packages by importing the environment.yml file by running `conda env create -f environment.yml` from your terminal
 
 ## If you're using PIP
+Please use a virtual environment, so this project's dependency don't mess up with your global environment
 Run `pip install -r requirements.txt` from your terminal
 
 ## After setting up environment
