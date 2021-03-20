@@ -1,3 +1,8 @@
 {
-    "python.pythonPath": "d:\\Anaconda\\envs\\workshop-techart\\python.exe"
+    "python.pythonPath": "/Users/hariangr/opt/anaconda3/envs/workshop-techart/bin/python",
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#2F2E1F",
+        "titleBar.activeBackground": "#42402B",
+        "titleBar.activeForeground": "#FCFBFA"
+    }
 }

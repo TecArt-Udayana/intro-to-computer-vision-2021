@@ -1,0 +1,8 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#312F08",
+        "titleBar.activeBackground": "#44410B",
+        "titleBar.activeForeground": "#FBFAE9"
+    },
+    "python.pythonPath": "/Users/hariangr/opt/anaconda3/envs/workshop-techart/bin/python"
+}
