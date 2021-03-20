@@ -131,7 +131,7 @@ class MainWindow(QMainWindow):
             self.dialog_critical("Tidak ada citra awal yang dapat diproses !")
 
     def startOperation(self, selectedOperasi):
-        imageArray = cv2.cvtColor(self.imgRaw, cv2.COLOR_BGR2RGB)
+        imageArray = self.imgRaw
         gray, edges = imageArray, imageArray
         if (selectedOperasi == 'Hough Transform Line'):
             dlg = OperasiCitraDialog(selectedOperasi)
