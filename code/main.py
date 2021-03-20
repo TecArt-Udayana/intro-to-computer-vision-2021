@@ -141,11 +141,6 @@ class MainWindow(QMainWindow):
                 if lines is not None:
                     for index, line in enumerate(lines):
                         x1, y1, x2, y2 = line[0]
-                        print("\nLine", index)
-                        print("x1 = ", x1)
-                        print("y1 = ", y1)
-                        print("x2 = ", x2)
-                        print("y2 = ", y2)
             else:
                 return
         elif (selectedOperasi == 'Hough Transform Line (Parameterized)'):
