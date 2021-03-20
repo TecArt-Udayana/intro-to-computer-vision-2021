@@ -5,10 +5,12 @@ from PyQt5 import uic
 from PyQt5 import QtGui
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QColor, QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QCheckBox, QComboBox, QFileDialog, QMainWindow, QLabel, QPushButton, QSlider
+from PyQt5.QtWidgets import QApplication, QCheckBox, QComboBox, QFileDialog, QMainWindow, QLabel, QPushButton, QSlider, \
+    QTabWidget, QWidget
 import cv2
 import numpy as np
 import os
+
 
 # Untuk menampilkan preview warna HSV
 def generateSolidColorPixmap(w, h, color):
@@ -17,6 +19,7 @@ def generateSolidColorPixmap(w, h, color):
         for kolom in range(0, w):
             canvas.setPixel(kolom, baris, color.rgb())
     return canvas
+
 
 class MainWindow(QMainWindow):
     selectedHue = 0
@@ -36,6 +39,11 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         uic.loadUi(os.path.join(os.path.dirname(
             __file__), "main_window.ui"), self)
+
+        self.tabs = self.findChild(QTabWidget, "tabWidget")
+        self.tabs.setTabText(0, "HSV Demo")
+        self.tabs.setTabText(1, "Computer Vision Demo")
+        self.tabs.setCurrentIndex(0)
 
         self.sliderH = self.findChild(QSlider, "sliderH")
         self.sliderS = self.findChild(QSlider, "sliderS")
@@ -67,14 +75,14 @@ class MainWindow(QMainWindow):
         self.btnOpen = self.findChild(QPushButton, "btnOpen")
         self.btnCopy = self.findChild(QPushButton, "btnCopy")
 
-        self.init_handler()
+        self.init_hsv_tab_handler()
         self.loadHsvSpace()
         self.updateHSVPreview()
 
     def loadHsvSpace(self):
         self.imgHsvSpace = cv2.imread(os.path.join(os.path.dirname(__file__), "assets", "hsv_color.png"))
-        
-    def init_handler(self):
+
+    def init_hsv_tab_handler(self):
         self.sliderH.valueChanged.connect(self.onHChanged)
         self.sliderS.valueChanged.connect(self.onSChanged)
         self.sliderV.valueChanged.connect(self.onVChanged)
@@ -101,10 +109,10 @@ class MainWindow(QMainWindow):
 
         frame_threshold = cv2.bitwise_and(self.imgHsvSpace, self.imgHsvSpace, mask=frame_threshold)
         _asQImage = QImage(
-            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1]*3,  QtGui.QImage.Format_RGB888)
+            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1] * 3,
+            QtGui.QImage.Format_RGB888)
         _asQImage = _asQImage.rgbSwapped()
         self.previewHsvSpace.setPixmap(QPixmap.fromImage(_asQImage).scaledToWidth(self.previewMask.size().width()))
-
 
     def updateHSVPreview(self):
         # Parameter : h, s, v
@@ -136,7 +144,7 @@ class MainWindow(QMainWindow):
                              self.selectedSaturation, self.selectedValue)
             self.lblLower.setText(
                 f"H {self.lowerHSV[0]}; S {self.lowerHSV[1]}; V {self.lowerHSV[2]}")
-        
+
         self.updateMask()
         self.updatePreviewHsvSpace()
 
@@ -168,7 +176,7 @@ class MainWindow(QMainWindow):
         if self.cboxErode.isChecked():
             _kernel = self.sliderErotion.value()
             frame_threshold = cv2.erode(frame_threshold, np.ones((_kernel, _kernel), dtype=np.uint8))
-        
+
         if self.cboxDilate.isChecked():
             _kernel = self.sliderDilation.value()
             frame_threshold = cv2.dilate(frame_threshold, np.ones((_kernel, _kernel), dtype=np.uint8))
@@ -177,10 +185,10 @@ class MainWindow(QMainWindow):
         frame_threshold = cv2.cvtColor(frame_threshold, cv2.COLOR_GRAY2RGB)
 
         _asQImage = QImage(
-            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1]*3,  QtGui.QImage.Format_RGB888)
+            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1] * 3,
+            QtGui.QImage.Format_RGB888)
         _asQImage = _asQImage.rgbSwapped()
         self.previewMask.setPixmap(QPixmap.fromImage(_asQImage).scaledToHeight(self.previewMask.size().height()))
-
 
     def updateMaskedRaw(self, masking):
         if self.imgRaw is None:
@@ -188,12 +196,11 @@ class MainWindow(QMainWindow):
 
         frame_threshold = cv2.bitwise_and(self.imgRaw, self.imgRaw, mask=masking)
         _asQImage = QImage(
-            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1]*3,  QtGui.QImage.Format_RGB888)
+            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1] * 3,
+            QtGui.QImage.Format_RGB888)
         _asQImage = _asQImage.rgbSwapped()
-        self.previewMaskedRaw.setPixmap(QPixmap.fromImage(_asQImage).scaledToHeight(self.previewMaskedRaw.size().height()))
-
-
-
+        self.previewMaskedRaw.setPixmap(
+            QPixmap.fromImage(_asQImage).scaledToHeight(self.previewMaskedRaw.size().height()))
 
     # =========== EVENT HANDLER ===========
 
@@ -215,7 +222,7 @@ class MainWindow(QMainWindow):
 
     def onHChanged(self):
         _v = self.selectedHue = self.sliderH.value()
-        self.lblH.setText(str(f"QT5 ({_v}) | cv2 ({_v//2})"))
+        self.lblH.setText(str(f"QT5 ({_v}) | cv2 ({_v // 2})"))
         self.updateHSVPreview()
 
     def onSChanged(self):
