@@ -10,14 +10,13 @@ import cv2
 import numpy as np
 import os
 
-
+# Untuk menampilkan preview warna HSV
 def generateSolidColorPixmap(w, h, color):
     canvas = QImage(QSize(w, h), QImage.Format_RGB30)
     for baris in range(0, h):
         for kolom in range(0, w):
             canvas.setPixel(kolom, baris, color.rgb())
     return canvas
-
 
 class MainWindow(QMainWindow):
     selectedHue = 0
@@ -108,18 +107,25 @@ class MainWindow(QMainWindow):
 
 
     def updateHSVPreview(self):
+        # Parameter : h, s, v
+        # h dari nilai hue yang dipilih, s dan v set ke max value (255)
         prevH = generateSolidColorPixmap(
             200, 300, QColor.fromHsv(self.selectedHue, 255, 255))
         self.previewH.setPixmap(QPixmap.fromImage(prevH))
 
+        # h dari nilai hue yang dipilih, s dari nilai saturation yang dipilih
+        # v set ke max value (255)
         prevS = generateSolidColorPixmap(
             200, 300, QColor.fromHsv(self.selectedHue, self.selectedSaturation, 255))
         self.previewS.setPixmap(QPixmap.fromImage(prevS))
 
+        # h dari nilai hue yang dipilih, s dari nilai saturation yang dipilih
+        # v dari nilai v yang dipilih
         prevV = generateSolidColorPixmap(
             200, 300, QColor.fromHsv(self.selectedHue, self.selectedSaturation, self.selectedValue))
         self.previewV.setPixmap(QPixmap.fromImage(prevV))
 
+        # Check dropdown pilihan mode UPPER atau LOWER
         if self.cboxSetMode.currentText() == "UPPER":
             self.upperHSV = (self.selectedHue // 2,
                              self.selectedSaturation, self.selectedValue)
