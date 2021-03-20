@@ -138,9 +138,6 @@ class MainWindow(QMainWindow):
             if dlg.exec_():
                 value = dlg.GetValue()
                 gray, edges, imageArray, lines = hough.hough_transform_line(imageArray,value[0],value[1],value[2], value[3], value[4])
-                if lines is not None:
-                    for index, line in enumerate(lines):
-                        x1, y1, x2, y2 = line[0]
             else:
                 return
         elif (selectedOperasi == 'Hough Transform Line (Parameterized)'):
