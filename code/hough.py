@@ -8,8 +8,11 @@ def hough_transform_circle(img, param_2=200, param_1=10, min_radius=20, max_radi
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     cv2.imwrite("hough_result/hough_gray.jpg", gray)
+    # Blur the image to reduce noise
+    img_blur = cv2.medianBlur(gray, 5)
+    cv2.imwrite("hough_result/hasilblur",img_blur)
     # Canny edge detection
-    img_canny = cv2.Canny(gray, threshold_1, threshold_2)
+    img_canny = cv2.Canny(img_blur, threshold_1, threshold_2)
     cv2.imwrite("hough_result/hough_canny.jpg", img_canny)
     # Apply hough transform on the image
     circles = cv2.HoughCircles(img_canny, cv2.HOUGH_GRADIENT, 1, img.shape[0] / 20, param1=param_2, param2=param_1,
