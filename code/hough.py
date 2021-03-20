@@ -4,7 +4,7 @@ import numpy as np
 
 def hough_transform_circle(img, param_2=200, param_1=10, min_radius=20, max_radius=35, threshold_1=120,
                            threshold_2=240):
-    print('p1,p2,min,max', param_2, param_1, min_radius, max_radius)
+    print("Params p1 = {}, p2 = {}, min = {}, max = {}, t1 = {}, t2 = {}".format(param_2, param_1, min_radius, max_radius, threshold_1, threshold_2))
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     cv2.imwrite("hough_result/hough_gray.jpg", gray)
