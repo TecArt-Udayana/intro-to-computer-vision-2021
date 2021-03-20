@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import os
 
 
 def hough_transform_circle(img, param_2=200, param_1=10, min_radius=20, max_radius=35, threshold_1=120,
@@ -9,19 +10,19 @@ def hough_transform_circle(img, param_2=200, param_1=10, min_radius=20, max_radi
                                                                                threshold_1, threshold_2))
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite("hough_result/hough_gray.jpg", gray)
+    cv2.imwrite("hough_gray.jpg", gray)
     # Blur the image to reduce noise
     img_blur = cv2.medianBlur(gray, 5)
-    cv2.imwrite("hough_result/hasilblur.jpg", img_blur)
+    cv2.imwrite("hasilblur.jpg", img_blur)
     # Canny edge detection
     img_canny = cv2.Canny(img_blur, threshold_1, threshold_2)
-    cv2.imwrite("hough_result/hough_canny.jpg", img_canny)
+    cv2.imwrite("hough_canny.jpg", img_canny)
     # Apply hough transform on the image
     circles = cv2.HoughCircles(img_canny, cv2.HOUGH_GRADIENT, 1, img.shape[0] / 20, param1=param_2, param2=param_1,
                                minRadius=min_radius,
                                maxRadius=max_radius)
     if circles is not None:
-        cv2.imwrite("hough_result/hough_result.jpg", circles)
+        cv2.imwrite("hough_result.jpg", circles)
 
     # Draw detected circles
     if circles is not None:
@@ -44,14 +45,14 @@ def hough_transform_line(img, max_slider=76, min_line_length=46, max_line_gap=33
         max_slider, min_line_length, max_line_gap, threshold_1,
         threshold_2))
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    cv2.imwrite("hough_result/hasilbgr.jpg", img)
+    cv2.imwrite("hasilbgr.jpg", img)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite("hough_result/hasilgray.jpg", gray)
+    cv2.imwrite("hasilgray.jpg", gray)
     # Find the edges in the image using canny detector
     gray = cv2.medianBlur(gray, 5)
     edges = cv2.Canny(gray, threshold_1, threshold_2)
-    cv2.imwrite("hough_result/hasilblur.jpg", gray)
-    cv2.imwrite("hough_result/hasilcanny.jpg", edges)
+    cv2.imwrite("hasilblur.jpg", gray)
+    cv2.imwrite("hasilcanny.jpg", edges)
 
     # Probabilistic Hough
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, max_slider, minLineLength=min_line_length, maxLineGap=max_line_gap)
