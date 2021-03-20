@@ -7,15 +7,16 @@ def hough_transform_circle(img, param_2=200, param_1=10, min_radius=20, max_radi
     print('p1,p2,min,max', param_2, param_1, min_radius, max_radius)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite("hough_gray.jpg", gray)
+    cv2.imwrite("hough_result/hough_gray.jpg", gray)
     # Canny edge detection
     img_canny = cv2.Canny(gray, threshold_1, threshold_2)
-    cv2.imwrite("hough_canny.jpg", img_canny)
+    cv2.imwrite("hough_result/hough_canny.jpg", img_canny)
     # Apply hough transform on the image
     circles = cv2.HoughCircles(img_canny, cv2.HOUGH_GRADIENT, 1, img.shape[0] / 20, param1=param_2, param2=param_1,
                                minRadius=min_radius,
                                maxRadius=max_radius)
-    cv2.imwrite("hough_result.jpg", circles)
+    if circles is not None:
+        cv2.imwrite("hough_result/hough_result.jpg", circles)
 
     # Draw detected circles
     if circles is not None:
@@ -33,16 +34,17 @@ def hough_transform_circle(img, param_2=200, param_1=10, min_radius=20, max_radi
     return gray, img_canny, result
 
 
-def hough_transform_line(img, max_slider=0, min_line_length=3, max_line_gap=20):
+def hough_transform_line(img, max_slider=0, min_line_length=3, max_line_gap=20, threshold_1=50,
+                         threshold_2=200):
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    cv2.imwrite("hasilbgr.jpg", img)
+    cv2.imwrite("hough_result/hasilbgr.jpg", img)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite("hasilgray.jpg", gray)
+    cv2.imwrite("hough_result/hasilgray.jpg", gray)
     # Find the edges in the image using canny detector
     gray = cv2.medianBlur(gray, 5)
-    edges = cv2.Canny(gray, 50, 200)
-    cv2.imwrite("hasilblur.jpg",gray)
-    cv2.imwrite("hasilcanny.jpg",edges)
+    edges = cv2.Canny(gray, threshold_1, threshold_2)
+    cv2.imwrite("hough_result/hasilblur.jpg", gray)
+    cv2.imwrite("hough_result/hasilcanny.jpg", edges)
 
     # Probabilistic Hough
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, max_slider, minLineLength=min_line_length, maxLineGap=max_line_gap)
@@ -59,6 +61,7 @@ def hough_transform_line(img, max_slider=0, min_line_length=3, max_line_gap=20):
     gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
     edges = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
     return gray, edges, result, lines
+
 
 def erosi_citra(img):
     # Threshold the image
