@@ -4,7 +4,9 @@ import numpy as np
 
 def hough_transform_circle(img, param_2=200, param_1=10, min_radius=20, max_radius=35, threshold_1=120,
                            threshold_2=240):
-    print("Params p1 = {}, p2 = {}, min = {}, max = {}, t1 = {}, t2 = {}".format(param_2, param_1, min_radius, max_radius, threshold_1, threshold_2))
+    print(
+        "Params p1 = {}, p2 = {}, min = {}, max = {}, t1 = {}, t2 = {}".format(param_2, param_1, min_radius, max_radius,
+                                                                               threshold_1, threshold_2))
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     cv2.imwrite("hough_result/hough_gray.jpg", gray)
@@ -37,8 +39,10 @@ def hough_transform_circle(img, param_2=200, param_1=10, min_radius=20, max_radi
     return gray, img_canny, result
 
 
-def hough_transform_line(img, max_slider=0, min_line_length=3, max_line_gap=20, threshold_1=50,
-                         threshold_2=200):
+def hough_transform_line(img, max_slider=76, min_line_length=46, max_line_gap=332, threshold_1=77, threshold_2=210):
+    print("Params max_slider = {}, min_line_length = {}, max_line_gap = {}, threshold_1 = {}, threshold_2 = {}".format(
+        max_slider, min_line_length, max_line_gap, threshold_1,
+        threshold_2))
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     cv2.imwrite("hough_result/hasilbgr.jpg", img)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
