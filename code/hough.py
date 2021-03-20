@@ -10,7 +10,7 @@ def hough_transform_circle(img, param_2=200, param_1=10, min_radius=20, max_radi
     cv2.imwrite("hough_result/hough_gray.jpg", gray)
     # Blur the image to reduce noise
     img_blur = cv2.medianBlur(gray, 5)
-    cv2.imwrite("hough_result/hasilblur",img_blur)
+    cv2.imwrite("hough_result/hasilblur.jpg", img_blur)
     # Canny edge detection
     img_canny = cv2.Canny(img_blur, threshold_1, threshold_2)
     cv2.imwrite("hough_result/hough_canny.jpg", img_canny)
