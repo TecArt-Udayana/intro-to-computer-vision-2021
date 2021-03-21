@@ -18,4 +18,4 @@ Run `pip install -r requirements.txt` from your terminal
 Run `python3 main.py` or `python main.py` from your terminal
 Open a picture by clicking `Open` button
 
-![App Screenshot](assets/app.png)
+![App Screenshot](code/assets/app.png)

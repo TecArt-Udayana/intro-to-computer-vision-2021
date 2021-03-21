@@ -3,12 +3,16 @@ import os
 
 from PyQt5 import uic
 from PyQt5 import QtGui
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QColor, QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QCheckBox, QComboBox, QFileDialog, QMainWindow, QLabel, QPushButton, QSlider
+from PyQt5.QtWidgets import QApplication, QCheckBox, QComboBox, QFileDialog, QMainWindow, QLabel, QPushButton, QSlider, \
+    QTabWidget, QWidget, QListWidget, QMessageBox
 import cv2
 import numpy as np
 import os
+import hough
+from operasi_citra_dialog import OperasiCitraDialog
+
 
 # Untuk menampilkan preview warna HSV
 def generateSolidColorPixmap(w, h, color):
@@ -17,6 +21,7 @@ def generateSolidColorPixmap(w, h, color):
         for kolom in range(0, w):
             canvas.setPixel(kolom, baris, color.rgb())
     return canvas
+
 
 class MainWindow(QMainWindow):
     selectedHue = 0
@@ -37,6 +42,14 @@ class MainWindow(QMainWindow):
         uic.loadUi(os.path.join(os.path.dirname(
             __file__), "main_window.ui"), self)
 
+        self.tabs = self.findChild(QTabWidget, "tabWidget")
+        self.tabs.setTabText(0, "HSV Demo")
+        self.tabs.setTabText(1, "Computer Vision Demo")
+        self.tabs.setCurrentIndex(0)
+        self.init_hsv_tab_ui()
+        self.init_hough_tab_gui()
+
+    def init_hsv_tab_ui(self):
         self.sliderH = self.findChild(QSlider, "sliderH")
         self.sliderS = self.findChild(QSlider, "sliderS")
         self.sliderV = self.findChild(QSlider, "sliderV")
@@ -67,14 +80,29 @@ class MainWindow(QMainWindow):
         self.btnOpen = self.findChild(QPushButton, "btnOpen")
         self.btnCopy = self.findChild(QPushButton, "btnCopy")
 
-        self.init_handler()
+        self.init_hsv_tab_handler()
         self.loadHsvSpace()
         self.updateHSVPreview()
 
+    def init_hough_tab_gui(self):
+        self.operation_list = self.findChild(QListWidget, "algorithmList")
+        for n in ['Hough Transform Line', 'Hough Transform Line (Parameterized)', 'Hough Transform Circle', 'Hough Transform Circle (Parameterized)']:
+            self.operation_list.addItem(str(n))
+
+        self.previewRawHough = self.findChild(QLabel, "previewRawHough")
+        self.previewGrayHough = self.findChild(QLabel, "previewGrayHough")
+        self.previewCannyHough = self.findChild(QLabel, "previewCannyHough")
+        self.previewResultHough = self.findChild(QLabel, "previewResultHough")
+
+        self.btnOpenHough = self.findChild(QPushButton, "btnOpenHough")
+        self.btnStartHough = self.findChild(QPushButton, "btnStartHough")
+
+        self.init_hough_tab_handler()
+
     def loadHsvSpace(self):
         self.imgHsvSpace = cv2.imread(os.path.join(os.path.dirname(__file__), "assets", "hsv_color.png"))
-        
-    def init_handler(self):
+
+    def init_hsv_tab_handler(self):
         self.sliderH.valueChanged.connect(self.onHChanged)
         self.sliderS.valueChanged.connect(self.onSChanged)
         self.sliderV.valueChanged.connect(self.onVChanged)
@@ -86,6 +114,64 @@ class MainWindow(QMainWindow):
         self.cboxErode.stateChanged.connect(self.updateMask)
         self.sliderErotion.valueChanged.connect(self.onSliderErodeChanged)
         self.sliderDilation.valueChanged.connect(self.onSliderDilateChanged)
+
+    def init_hough_tab_handler(self):
+        self.btnOpenHough.clicked.connect(self.onBtnOpenClicked)
+        self.btnStartHough.clicked.connect(self.startHoughTransform)
+
+    def startHoughTransform(self):
+        if self.imgRaw is not None:
+            selectedItem = self.operation_list.currentItem()
+            if(selectedItem):
+                selectedItem = selectedItem.text()
+                self.startOperation(selectedItem)
+            else:
+                self.dialog_critical("Tidak ada opsi dipilih !")
+        else:
+            self.dialog_critical("Tidak ada citra awal yang dapat diproses !")
+
+    def startOperation(self, selectedOperasi):
+        imageArray = self.imgRaw
+        gray, edges = imageArray, imageArray
+        if (selectedOperasi == 'Hough Transform Line'):
+            dlg = OperasiCitraDialog(selectedOperasi)
+            if dlg.exec_():
+                value = dlg.GetValue()
+                gray, edges, imageArray, lines = hough.hough_transform_line(imageArray,value[0],value[1],value[2], value[3], value[4])
+            else:
+                return
+        elif (selectedOperasi == 'Hough Transform Line (Parameterized)'):
+            gray, edges, imageArray, lines = hough.hough_transform_line(imageArray)
+            if lines is not None:
+                for index, line in enumerate(lines):
+                    x1, y1, x2, y2 = line[0]
+        elif (selectedOperasi == 'Hough Transform Circle'):
+            dlg = OperasiCitraDialog(selectedOperasi)
+            if dlg.exec_():
+                value = dlg.GetValue()
+                gray, edges, imageArray = hough.hough_transform_circle(imageArray,value[0],value[1],value[2],value[3], value[4], value[5])
+            else:
+                return
+        elif (selectedOperasi == 'Hough Transform Circle (Parameterized)'):
+            gray, edges, imageArray = hough.hough_transform_circle(imageArray)
+
+        _asQImage = QImage(
+            gray.data, gray.shape[1], gray.shape[0], gray.shape[1] * 3,
+            QtGui.QImage.Format_RGB888)
+        _asQImage = _asQImage.rgbSwapped()
+        self.previewGrayHough.setPixmap(QPixmap.fromImage(_asQImage).scaled(self.previewRawHough.size().width(), self.previewRawHough.size().height(),Qt.KeepAspectRatio))
+
+        _asQImage = QImage(
+            edges.data, edges.shape[1], edges.shape[0], edges.shape[1] * 3,
+            QtGui.QImage.Format_RGB888)
+        _asQImage = _asQImage.rgbSwapped()
+        self.previewCannyHough.setPixmap(QPixmap.fromImage(_asQImage).scaled(self.previewRawHough.size().width(), self.previewRawHough.size().height(),Qt.KeepAspectRatio))
+
+        _asQImage = QImage(
+            imageArray.data, imageArray.shape[1], imageArray.shape[0], imageArray.shape[1] * 3,
+            QtGui.QImage.Format_RGB888)
+        _asQImage = _asQImage.rgbSwapped()
+        self.previewResultHough.setPixmap(QPixmap.fromImage(_asQImage).scaled(self.previewRawHough.size().width(), self.previewRawHough.size().height(),Qt.KeepAspectRatio))
 
     # =========== Helper ===========
     def updatePreviewHsvSpace(self):
@@ -101,10 +187,10 @@ class MainWindow(QMainWindow):
 
         frame_threshold = cv2.bitwise_and(self.imgHsvSpace, self.imgHsvSpace, mask=frame_threshold)
         _asQImage = QImage(
-            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1]*3,  QtGui.QImage.Format_RGB888)
+            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1] * 3,
+            QtGui.QImage.Format_RGB888)
         _asQImage = _asQImage.rgbSwapped()
         self.previewHsvSpace.setPixmap(QPixmap.fromImage(_asQImage).scaledToWidth(self.previewMask.size().width()))
-
 
     def updateHSVPreview(self):
         # Parameter : h, s, v
@@ -136,7 +222,7 @@ class MainWindow(QMainWindow):
                              self.selectedSaturation, self.selectedValue)
             self.lblLower.setText(
                 f"H {self.lowerHSV[0]}; S {self.lowerHSV[1]}; V {self.lowerHSV[2]}")
-        
+
         self.updateMask()
         self.updatePreviewHsvSpace()
 
@@ -151,8 +237,8 @@ class MainWindow(QMainWindow):
 
         # self.imgRaw = img.scaled(200,100, QtCore.KeepAspectRatio)
         # self.imgRaw = img.scaledToHeight(self.previewMask.size().height())
-        self.previewRaw.setPixmap(QPixmap.fromImage(
-            _imgAsQImg).scaledToWidth(self.previewRaw.size().width()))
+        self.previewRaw.setPixmap(QPixmap.fromImage(_imgAsQImg).scaledToWidth(self.previewRaw.size().width()))
+        self.previewRawHough.setPixmap(QPixmap.fromImage(_imgAsQImg).scaledToWidth(self.previewRawHough.size().width()))
 
     def updateMask(self):
         if self.imgRaw is None:
@@ -168,7 +254,7 @@ class MainWindow(QMainWindow):
         if self.cboxErode.isChecked():
             _kernel = self.sliderErotion.value()
             frame_threshold = cv2.erode(frame_threshold, np.ones((_kernel, _kernel), dtype=np.uint8))
-        
+
         if self.cboxDilate.isChecked():
             _kernel = self.sliderDilation.value()
             frame_threshold = cv2.dilate(frame_threshold, np.ones((_kernel, _kernel), dtype=np.uint8))
@@ -177,10 +263,10 @@ class MainWindow(QMainWindow):
         frame_threshold = cv2.cvtColor(frame_threshold, cv2.COLOR_GRAY2RGB)
 
         _asQImage = QImage(
-            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1]*3,  QtGui.QImage.Format_RGB888)
+            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1] * 3,
+            QtGui.QImage.Format_RGB888)
         _asQImage = _asQImage.rgbSwapped()
         self.previewMask.setPixmap(QPixmap.fromImage(_asQImage).scaledToHeight(self.previewMask.size().height()))
-
 
     def updateMaskedRaw(self, masking):
         if self.imgRaw is None:
@@ -188,12 +274,11 @@ class MainWindow(QMainWindow):
 
         frame_threshold = cv2.bitwise_and(self.imgRaw, self.imgRaw, mask=masking)
         _asQImage = QImage(
-            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1]*3,  QtGui.QImage.Format_RGB888)
+            frame_threshold.data, frame_threshold.shape[1], frame_threshold.shape[0], frame_threshold.shape[1] * 3,
+            QtGui.QImage.Format_RGB888)
         _asQImage = _asQImage.rgbSwapped()
-        self.previewMaskedRaw.setPixmap(QPixmap.fromImage(_asQImage).scaledToHeight(self.previewMaskedRaw.size().height()))
-
-
-
+        self.previewMaskedRaw.setPixmap(
+            QPixmap.fromImage(_asQImage).scaledToHeight(self.previewMaskedRaw.size().height()))
 
     # =========== EVENT HANDLER ===========
 
@@ -215,7 +300,7 @@ class MainWindow(QMainWindow):
 
     def onHChanged(self):
         _v = self.selectedHue = self.sliderH.value()
-        self.lblH.setText(str(f"QT5 ({_v}) | cv2 ({_v//2})"))
+        self.lblH.setText(str(f"QT5 ({_v}) | cv2 ({_v // 2})"))
         self.updateHSVPreview()
 
     def onSChanged(self):
@@ -246,6 +331,12 @@ class MainWindow(QMainWindow):
         self.updateRawImg(cv2.imread(fileName))
         # with open(fileName, 'rb') as f:
         #     self.updateRawImg(QImage.fromData(f.read()))
+
+    def dialog_critical(self, s):
+        dlg = QMessageBox(self)
+        dlg.setText(s)
+        dlg.setIcon(QMessageBox.Critical)
+        dlg.show()
 
 
 if __name__ == "__main__":
