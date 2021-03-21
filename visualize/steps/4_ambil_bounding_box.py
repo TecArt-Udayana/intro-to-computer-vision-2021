@@ -14,11 +14,13 @@ upper_hsv = np.array([179, 255, 210])
 only_blue = cv2.inRange(img_hsv, lower_hsv, upper_hsv)
 cv2.imshow("Only Blue", only_blue)
 
+# Temukan contour sebuah objek
 contours_canvas = img.copy()
 # https://docs.opencv.org/master/dd/d49/tutorial_py_contour_features.html
 contours, hierarchy = cv2.findContours(
     only_blue, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-cv2.drawContours(contours_canvas, contours, -1, (0, 0, 255), 3)
+print(contours)
+cv2.drawContours(contours_canvas, contours, -1, (255, 0, 0), 1)
 
 cv2.imshow("Found contours", contours_canvas)
 cv2.waitKey(0)

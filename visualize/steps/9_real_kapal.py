@@ -16,7 +16,7 @@ cv2.imshow("Only Orange", only_orange)
 lower_blue = np.array([79, 70, 74])
 upper_blue = np.array([94, 255, 255])
 only_blue = cv2.inRange(img_hsv, lower_blue, upper_blue)
-cv2.imshow("Only Orange", only_orange)
+cv2.imshow("Only Blue", only_blue)
 
 only_hsv = cv2.bitwise_or(only_orange, only_blue)
 

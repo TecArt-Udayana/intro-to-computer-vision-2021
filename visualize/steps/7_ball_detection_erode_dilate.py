@@ -8,15 +8,15 @@ cv2.imshow("Gambar BGR", img)
 img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 cv2.imshow("Gambar HSV", img_hsv)
 
-lower_hsv = np.array([0, 105, 90])
-upper_hsv = np.array([25, 255, 255])
+lower_hsv = np.array([0, 44, 0])
+upper_hsv = np.array([15, 255, 255])
 
 only_orange = cv2.inRange(img_hsv, lower_hsv, upper_hsv)
 cv2.imshow("Only Orange", only_orange)
 
-eroded_frame = cv2.erode(only_orange, np.ones((3, 3), dtype=np.uint8))
+eroded_frame = cv2.erode(only_orange, np.ones((2, 2), dtype=np.uint8))
 cv2.imshow("Eroded", eroded_frame)
-dilated_frame = cv2.dilate(eroded_frame, np.ones((13, 13), dtype=np.uint8))
+dilated_frame = cv2.dilate(eroded_frame, np.ones((3, 3), dtype=np.uint8))
 cv2.imshow("Dilated", dilated_frame)
 
 contours_canvas = img.copy()
